@@ -1,16 +1,16 @@
 package Syntax::Collector;
 
 use 5.008;
+use Sub::Uplevel qw/uplevel :aggressive/;
 use strict;
 use syntax qw//; # deliberate dependency.
 use Carp;
 use Module::Runtime qw/require_module/;
 use Sub::Name qw/subname/;
-use Sub::Uplevel qw/uplevel/;
 
 BEGIN {
 	$Syntax::Collector::AUTHORITY = 'cpan:TOBYINK';
-	$Syntax::Collector::VERSION   = '0.001';
+	$Syntax::Collector::VERSION   = '0.002';
 }
 
 sub import
@@ -96,9 +96,9 @@ sub import
 			{
 				require_module($module);
 				$module->VERSION($version) if $version;
-				my $func = $use eq 'no' ? 'unimport' : 'import';
-				no strict 'refs';
-				uplevel 1, \&{"$module\::$func"}, $module, @$everything;
+				my $coderef = $module->can($use eq 'no' ? 'unimport' : 'import');
+				uplevel 1, $coderef, $module, @$everything
+					if $coderef;
 			}
 		}
 		
