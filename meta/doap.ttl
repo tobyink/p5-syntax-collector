@@ -13,6 +13,7 @@
 	:shortdesc      "collect a bundle of modules into one" ;
 	:homepage       <https://metacpan.org/release/Syntax-Collector> ;
 	:download-page  <https://metacpan.org/release/Syntax-Collector> ;
+	:repository     [ a :HgRepository ; :browse <https://bitbucket.org/tobyink/p5-syntax-collector> ];
 	:bug-database   <http://rt.cpan.org/Dist/Display.html?Queue=Syntax-Collector> ;
 	:created        "2012-02-15"^^xsd:date ;
 	:license        <http://dev.perl.org/licenses/> ;

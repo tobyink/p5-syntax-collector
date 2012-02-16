@@ -58,6 +58,7 @@ sub import
 			$}x)
 		{
 			my ($use, $module, $version, $everything) = ($1, $2, $3, $4);
+			$everything = '' unless defined $everything;
 			
 			if ($module =~ /^Syntax::Feature::/)
 			{
