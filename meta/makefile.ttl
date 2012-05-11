@@ -7,7 +7,7 @@
 	:version_from _:main ;
 	:readme_from _:main ;
 	:test_requires "Test::More 0.61", "Test::Warn", "Test::Exception";
-	:requires "Carp", "Module::Runtime", "strict", "Sub::Name", "Sub::Uplevel", "PerlX::Maybe", "syntax", "warnings".
+	:requires "Carp", "Module::Runtime", "strict", "Sub::Name", "PerlX::Maybe", "syntax", "warnings".
 
 _:main <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName> "lib/Syntax/Collector.pm" .
 

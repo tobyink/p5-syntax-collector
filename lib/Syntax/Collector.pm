@@ -1,7 +1,6 @@
 package Syntax::Collector;
 
 use 5.008;
-use Sub::Uplevel qw/uplevel :aggressive/;
 use strict;
 use syntax qw//; # deliberate dependency.
 use Carp;
@@ -79,8 +78,8 @@ sub import
 	my %sub;
 	$sub{import} = sub
 	{
-		my $self   = shift;
-		my $caller = caller;
+		my ($self, %args) = @_;
+		my $caller = $args{-into} || caller;
 		
 		foreach my $f (@features)
 		{
@@ -96,15 +95,15 @@ sub import
 			{
 				require_module($module);
 				$module->VERSION($version) if $version;
-				my $coderef = $module->can($use eq 'no' ? 'unimport' : 'import');
-				uplevel 1, $coderef, $module, @$everything
-					if $coderef;
+				my $coderef = $use eq 'no'
+					? eval "package $caller; my \$sub = sub { shift->unimport(\@_) };"
+					: eval "package $caller; my \$sub = sub { shift->import(\@_) };";
+				$coderef->($module, @$everything);
 			}
 		}
 		
 		if (my $after = $self->can('IMPORT'))
 		{
-			@_ = ($self);
 			goto $after;
 		}
 	};
