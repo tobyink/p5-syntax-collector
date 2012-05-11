@@ -9,7 +9,7 @@ use Sub::Name qw/subname/;
 
 BEGIN {
 	$Syntax::Collector::AUTHORITY = 'cpan:TOBYINK';
-	$Syntax::Collector::VERSION   = '0.002';
+	$Syntax::Collector::VERSION   = '0.003';
 }
 
 sub import
@@ -258,6 +258,10 @@ can do this:
   __FILE__
   __END__
 
+C<IMPORT> is passed a copy of the same arguments that were passed to
+C<import>. C<import> uses named parameters, including support for an
+I<into> parameter; C<IMPORT> should probably do the same.
+
 As well as providing an C<import> method for your collection,
 Syntax::Collector also provides a C<modules> method, which can be called
 to find out which modules a collection includes. Called in list context,
@@ -265,10 +269,6 @@ it returns a list. Called in scalar context, it returns a reference to a
 C<< { module => version } >> hash.
 
 =head1 CAVEATS
-
-This module does some pretty tricky stuff with L<Sub::Uplevel> and
-C<eval>. It is possible that (especially in the case of convoluted
-OVERSTUFF), certain "use" lines may break.
 
 You should not rely on the "use" lines being processed in any
 particular order.

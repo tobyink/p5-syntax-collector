@@ -27,3 +27,17 @@ dist:v_0-002
 		dcs:item   [ rdfs:label "Make Sub::Uplevel more aggressive."@en ] ;
 		] .
 
+dist:project :release dist:v_0-003 .
+dist:v_0-003
+	a               :Version ;
+	dc:issued       "2012-05-11"^^xsd:date ;
+	:revision       "0.003"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/Syntax-Collector-0.003.tar.gz> ;
+	dcs:changeset [
+		dcs:versus dist:v_0-002 ;
+		dcs:item   [ rdfs:label "Borrow caller-fooling technique from Import::Into, so we no longer need uplevel."@en ] ;
+		dcs:item   [ rdfs:label "IMPORT methods now get passed @_ from import."@en ] ;
+		dcs:item   [ rdfs:label "Drop Sub::Uplevel dependency."@en ] ;
+		dcs:item   [ rdfs:label "Support an 'into' parameter."@en ; a dcs:Addition ]
+		] .
+
