@@ -25,7 +25,7 @@ dist:v_0-002
 		dcs:versus dist:v_0-001 ;
 		dcs:item   [ rdfs:label "Cope better with modules that inherit their import routine."@en ] ;
 		dcs:item   [ rdfs:label "Make Sub::Uplevel more aggressive."@en ] ;
-		] .
+	] .
 
 dist:project :release dist:v_0-003 .
 dist:v_0-003
@@ -39,5 +39,17 @@ dist:v_0-003
 		dcs:item   [ rdfs:label "IMPORT methods now get passed @_ from import."@en ] ;
 		dcs:item   [ rdfs:label "Drop Sub::Uplevel dependency."@en ] ;
 		dcs:item   [ rdfs:label "Support an 'into' parameter."@en ; a dcs:Addition ]
-		] .
+	] .
+
+dist:project :release dist:v_0-004.
+dist:v_0-004
+	a               :Version;
+	dc:issued       "2012-09-07"^^xsd:date;
+	:revision       "0.004"^^xsd:string;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/Syntax-Collector-0.004.tar.gz>;
+	dcs:changeset [
+		dcs:versus dist:v_0-003;
+		dcs:item   [ rdfs:label "Drop PerlX::Maybe dependency."@en ];
+		dcs:item   [ rdfs:label "Clean up documentation."@en ];
+	].
 

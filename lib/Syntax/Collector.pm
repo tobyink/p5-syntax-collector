@@ -9,7 +9,7 @@ use Sub::Name qw/subname/;
 
 BEGIN {
 	$Syntax::Collector::AUTHORITY = 'cpan:TOBYINK';
-	$Syntax::Collector::VERSION   = '0.003';
+	$Syntax::Collector::VERSION   = '0.004';
 }
 
 sub import
@@ -79,7 +79,7 @@ sub import
 	$sub{import} = sub
 	{
 		my ($self, %args) = @_;
-		my $caller = $args{-into} || caller;
+		my $caller = caller;
 		
 		foreach my $f (@features)
 		{
@@ -102,9 +102,9 @@ sub import
 			}
 		}
 		
-		if (my $after = $self->can('IMPORT'))
+		if (my $afterlife = $self->can('IMPORT'))
 		{
-			goto $after;
+			goto $afterlife;
 		}
 	};
 	
@@ -139,25 +139,27 @@ Syntax::Collector - collect a bundle of modules into one
 In lib/Example/ProjectX/Syntax.pm
 
   package Example::ProjectX::Syntax;
+  
   use 5.010;
   our $VERSION = 1;
+  
   use Syntax::Collector -collect => q/
-  use strict 0;
-  use warnings 0;
-  use feature 0 ':5.10';
-  use Syntax::Feature::Io 0;
-  use Syntax::Feature::Maybe 0;
-  use Syntax::Feature::Perform 0;
+    use strict 0;
+    use warnings 0;
+    use feature 0 ':5.10';
+    use Scalar::Util 1.21 qw(blessed);
   /;
-  __FILE__
+  
+  1;
   __END__
 
 In projectx.pl:
 
-  use Example::ProjectX::Syntax 1;
-  # strict, warnings, feature ':5.10', etc are now enabled!
+  #!/usr/bin/perl
   
   use Example::ProjectX::Database;
+  use Example::ProjectX::Syntax 1;
+  # strict, warnings, feature ':5.10', etc are now enabled!
   
   say "Welcome to ProjectX";
 
@@ -188,9 +190,7 @@ Syntax::Collector to the rescue!
   use strict 0;
   use warnings 0;
   use feature 0 ':5.10';
-  use Syntax::Feature::Io 0;
-  use Syntax::Feature::Maybe 0;
-  use Syntax::Feature::Perform 0;
+  use Scalar::Util 1.21 qw(blessed);
   /;
 
 When you C<use Syntax::Collector>, you provide a list of modules to
@@ -218,49 +218,10 @@ code that uses your collection.
 
 Because Syntax::Collector provides an C<import> method for your collection
 package, you cannot provide your own. However, the C<import> method
-provided will automatically call a C<IMPORT> method if it exists. So you
-can do this:
-
-  package Example::ProjectX::Syntax;
-  
-  use 5.010;
-  our $VERSION = 1;
-  
-  use constant {
-    PROJECT_NAME => 'Project X',
-    PROJECT_LEAD => 'Joe Bloggs',
-  };
-  
-  BEGIN {
-    sub IMPORT {
-      no strict 'refs';
-      my $caller = caller;
-      *{"$caller\::PROJECT_NAME"} = \&PROJECT_NAME;
-      *{"$caller\::PROJECT_LEAD"} = \&PROJECT_LEAD;
-      *{"$caller\::add"} = \&add;
-    }
-  }
-  
-  use Syntax::Collector -collect => q/
-  use strict 0;
-  use warnings 0;
-  use feature 0 ':5.10';
-  use Syntax::Feature::Io 0;
-  use Syntax::Feature::Maybe 0;
-  use Syntax::Feature::Perform 0;
-  /;
-  
-  sub add {
-    my $x = shift;
-    return $x + add(@_);
-  }
-  
-  __FILE__
-  __END__
-
+provided will automatically call an C<IMPORT> method if it exists.
 C<IMPORT> is passed a copy of the same arguments that were passed to
-C<import>. C<import> uses named parameters, including support for an
-I<into> parameter; C<IMPORT> should probably do the same.
+C<import>. (And indeed, it is invoked using C<goto> so it should be
+safe to check C<< caller(0) >>.)
 
 As well as providing an C<import> method for your collection,
 Syntax::Collector also provides a C<modules> method, which can be called
@@ -268,48 +229,74 @@ to find out which modules a collection includes. Called in list context,
 it returns a list. Called in scalar context, it returns a reference to a
 C<< { module => version } >> hash.
 
-=head1 CAVEATS
+=head1 A SYNTAX COLLECTION AND A UTILS COLLECTION
 
-You should not rely on the "use" lines being processed in any
-particular order.
+Your project's syntax module is also a natural place to keep any frequently
+used utility functions, constants, etc. Thanks to the C<IMPORT> method
+described above you can easily export these to the caller's namespace.
 
-=head2 Using with Exporter
+=head2 Using with Sub::Exporter
 
-It's a natural desire to want to use Syntax::Collector with Exporter. Because
-both of these modules want to provide you with an C<import> method, you
-need to resolve that manually:
+Sub::Exporter has an awesome feature set, so it is better than Exporter.pm.
 
   package Example::ProjectX::Syntax;
-  
-  use 5.010;
   our $VERSION = 1;
-  
-  use constant {
-    PROJECT_NAME => 'Project X',
-    PROJECT_LEAD => 'Joe Bloggs',
-  };
-  
-  our (@EXPORT, @EXPORT_OK, %EXPORT_TAGS);
-  BEGIN {
-    require qw/Exporter/;
-    @EXPORT      = qw/ ... /;
-    @EXPORT_OK   = qw/ ... /;
-    %EXPORT_TAGS = (
-        ':standard' => \@EXPORT,
-        ':all'      => \@EXPORT_OK,
-        ...);
-    sub IMPORT {
-      goto &Exporter::import;
-    }
-  }
   
   use Syntax::Collector -collect => q/
   use strict 0;
   use warnings 0;
-  ...
+  use feature 0 ':5.10';
+  use Scalar::Util 1.21 qw(blessed);
   /;
   
+  use Sub::Exporter ();
+  my $IMPORT = Sub::Exporter::build_exporter({
+    exports  => [qw(true false)],
+    groups   => { booleans => [qw(true false)] },
+  });
+  
+  sub IMPORT {
+    goto $IMPORT;
+  }
+  
+  sub true  () { !!1 }
+  sub false () { !!0 }
+  
   1;
+
+=head2 Using with Exporter.pm
+
+Exporter.pm comes bundled with Perl, so it is better than Sub::Exporter.
+
+  package Example::ProjectX::Syntax;
+  our $VERSION = 1;
+  
+  use Syntax::Collector -collect => q/
+  use strict 0;
+  use warnings 0;
+  use feature 0 ':5.10';
+  use Scalar::Util 1.21 qw(blessed);
+  /;
+  
+  use Exporter ();
+  our @EXPORT_OK   = qw( true false );
+  our %EXPORT_TAGS = (
+    booleans => [qw( true false )],
+  );
+  
+  sub IMPORT {
+    goto &Exporter::import;
+  }
+  
+  sub true  () { !!1 }
+  sub false () { !!0 }
+  
+  1;
+
+=head1 CAVEATS
+
+You should not rely on the "use" lines being processed in any
+particular order.
 
 =head1 BUGS
 
@@ -318,7 +305,7 @@ L<http://rt.cpan.org/Dist/Display.html?Queue=Syntax-Collector>.
 
 =head1 SEE ALSO
 
-L<syntax>, L<Exporter>.
+L<syntax>, L<Sub::Exporter>.
 
 =head1 AUTHOR
 

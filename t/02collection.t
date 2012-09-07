@@ -5,12 +5,16 @@
 			no strict 'refs';
 			my $caller = caller;
 			*{"$caller\::uc"} = sub ($) { lc $_[0] };
+			*{"$caller\::maybe"} = sub {
+				return @_ if defined $_[0] && defined $_[1];
+				shift; shift; return @_;
+			};
 		}
 	}
 	use Syntax::Collector -collect => q/
-	use strict 0;
-	use warnings 0;
-	use Syntax::Feature::Maybe 0;
+		use strict 0;
+		use warnings 0;
+		use Scalar::Util 0 qw(blessed);
 	/;
 }
 
@@ -26,7 +30,7 @@
 	
 	sub go
 	{
-		plan tests => 4;
+		plan tests => 5;
 		
 		is
 			uc('Hello World'),
@@ -38,11 +42,14 @@
 			'use warnings';
 		
 		lives_ok { maybe(1,2) }
-			'use Syntax::Feature::Maybe';
-		
+			'sub maybe';
+
+		lives_and { ok blessed( bless +{} ) }
+			'sub blessed';
+
 		is_deeply
 			[ sort Local::Test::Syntax->modules ],
-			[ sort qw/strict warnings Syntax::Feature::Maybe/ ],
+			[ sort qw/strict warnings Scalar::Util/ ],
 			'sub modules';
 	}
 }
