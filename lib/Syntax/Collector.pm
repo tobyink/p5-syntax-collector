@@ -114,13 +114,11 @@ sub import
 		return (wantarray ? keys(%modules) : \%modules);
 	};
 	
+	my $caller = caller;
+	for my $name (sort keys %sub)
 	{
-		my $caller = caller;
-		for my $name (sort keys %sub)
-		{
-			my $code = $sub{$name};
-			eval qq[package $caller; sub $name { goto \$code }];
-		}
+		my $code = $sub{$name};
+		eval qq[package $caller; sub $name { goto \$code }];
 	}
 }
 
