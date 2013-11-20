@@ -5,7 +5,6 @@
 `Syntax-Collector`
 	:runtime-requirement [ :on "Module::Runtime"^^:CpanId ];
 	:runtime-requirement [ :on "Sub::Name"^^:CpanId ];
-	:runtime-requirement [ :on "syntax"^^:CpanId ];
 	:test-requirement    [ :on "Test::More 0.61"^^:CpanId ];
 	:test-requirement    [ :on "Test::Warn"^^:CpanId ];
 	:test-requirement    [ :on "Test::Exception"^^:CpanId ].

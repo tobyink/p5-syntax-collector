@@ -2,7 +2,6 @@ package Syntax::Collector;
 
 use 5.008;
 use strict;
-use syntax qw//; # deliberate dependency.
 use Carp;
 use Module::Runtime qw/require_module/;
 use Sub::Name qw/subname/;
