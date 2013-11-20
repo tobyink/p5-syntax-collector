@@ -52,11 +52,11 @@ use Module::Runtime qw//;
 		
 		no strict 'refs';
 		no warnings 'closure';
-		my $caller = caller;	
+		my $caller = caller;
 		unshift @{"$caller\::ISA"}, 'Syntax::Collector::Collection';
 		eval "package $caller; sub _syntax_collector_features { \@features }; 1"
 			or Exporter::Tiny::_croak("$@");
-		$INC{Module::Runtime::module_notional_filename($caller)} ||= (caller(0))[1];		
+		$INC{Module::Runtime::module_notional_filename($caller)} ||= (caller(0))[1];
 	}
 }
 
@@ -82,7 +82,7 @@ use Module::Runtime qw//;
 		$class->SUPER::_exporter_validate_opts(@_);
 		
 		my ($coderef_use, $coderef_no) = eval qq[
-			package $caller; 
+			package $caller;
 			(
 				sub { shift->import(\@_) },
 				sub { shift->unimport(\@_) },
