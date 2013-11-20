@@ -1,55 +1,40 @@
 # This file acts as the project's changelog.
 
-@prefix :        <http://usefulinc.com/ns/doap#> .
-@prefix dcs:     <http://ontologi.es/doap-changeset#> .
-@prefix dc:      <http://purl.org/dc/terms/> .
-@prefix dist:    <http://purl.org/NET/cpan-uri/dist/Syntax-Collector/> .
-@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+`Syntax-Collector 0.001 cpan:TOBYINK`
+	issued    2012-02-16;
+	label     "Initial release".
 
-dist:project :release dist:v_0-001 .
-dist:v_0-001
-	a               :Version ;
-	dc:issued       "2012-02-16"^^xsd:date ;
-	:revision       "0.001"^^xsd:string ;
-	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/Syntax-Collector-0.001.tar.gz> ;
-	rdfs:label      "Initial release" .
+`Syntax-Collector 0.002 cpan:TOBYINK`
+	issued    2012-02-16;
+	changeset [
+		item   [ label "Cope better with modules that inherit their import routine."@en ];
+		item   [ label "Make Sub::Uplevel more aggressive."@en ];
+	].
 
-dist:project :release dist:v_0-002 .
-dist:v_0-002
-	a               :Version ;
-	dc:issued       "2012-02-16"^^xsd:date ;
-	:revision       "0.002"^^xsd:string ;
-	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/Syntax-Collector-0.002.tar.gz> ;
-	dcs:changeset [
-		dcs:versus dist:v_0-001 ;
-		dcs:item   [ rdfs:label "Cope better with modules that inherit their import routine."@en ] ;
-		dcs:item   [ rdfs:label "Make Sub::Uplevel more aggressive."@en ] ;
-	] .
+`Syntax-Collector 0.003 cpan:TOBYINK`
+	issued    2012-05-11;
+	changeset [
+		item   [ label "Borrow caller-fooling technique from Import::Into, so we no longer need uplevel."@en ];
+		item   [ label "IMPORT methods now get passed @_ from import."@en ];
+		item   [ label "Drop Sub::Uplevel dependency."@en; a dcs:Packaging ];
+		item   [ label "Support an 'into' parameter."@en ; a dcs:Addition ];
+	].
 
-dist:project :release dist:v_0-003 .
-dist:v_0-003
-	a               :Version ;
-	dc:issued       "2012-05-11"^^xsd:date ;
-	:revision       "0.003"^^xsd:string ;
-	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/Syntax-Collector-0.003.tar.gz> ;
-	dcs:changeset [
-		dcs:versus dist:v_0-002 ;
-		dcs:item   [ rdfs:label "Borrow caller-fooling technique from Import::Into, so we no longer need uplevel."@en ] ;
-		dcs:item   [ rdfs:label "IMPORT methods now get passed @_ from import."@en ] ;
-		dcs:item   [ rdfs:label "Drop Sub::Uplevel dependency."@en ] ;
-		dcs:item   [ rdfs:label "Support an 'into' parameter."@en ; a dcs:Addition ]
-	] .
+`Syntax-Collector 0.004 cpan:TOBYINK`
+	issued    2012-09-07;
+	changeset [
+		item   [ label "Drop PerlX::Maybe dependency."@en; a dcs:Packaging ];
+		item   [ label "Clean up documentation."@en; a dcs:Documentation ];
+	].
 
-dist:project :release dist:v_0-004.
-dist:v_0-004
-	a               :Version;
-	dc:issued       "2012-09-07"^^xsd:date;
-	:revision       "0.004"^^xsd:string;
-	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/Syntax-Collector-0.004.tar.gz>;
-	dcs:changeset [
-		dcs:versus dist:v_0-003;
-		dcs:item   [ rdfs:label "Drop PerlX::Maybe dependency."@en ];
-		dcs:item   [ rdfs:label "Clean up documentation."@en ];
+`Syntax-Collector 0.005 cpan:TOBYINK`
+	issued    2013-11-20;
+	changeset [
+		item   [ label "Almost complete rewrite, subclassing Exporter::Tiny."@en; a dcs:BackCompat ];
+		item   [ label "The IMPORT method no longer gets passed @_ from import, and is now undocumented."@en; a dcs:BackCompat ];
+		item   [ label "Drop syntax.pm dependency."@en; a dcs:Packaging ];
+		item   [ label "Drop Test::Warn dependency."@en; a dcs:Packaging ];
+		item   [ label "Drop Test::Exception dependency."@en; a dcs:Packaging ];
+		item   [ label "Drop Sub::Name dependency."@en; a dcs:Packaging ];
 	].
 
