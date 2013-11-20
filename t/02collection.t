@@ -24,6 +24,7 @@
 	use strict;
 	no warnings;
 	use Test::More tests => 6;
+	use Test::Requires 'Scalar::Util';
 	use Test::Fatal;
 	
 	use Local::Test::Syntax;
