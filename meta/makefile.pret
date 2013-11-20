@@ -3,9 +3,9 @@
 @prefix : <http://ontologi.es/doap-deps#> .
 
 `Syntax-Collector`
+	:runtime-requirement [ :on "perl 5.006001"^^:CpanId ];
 	:runtime-requirement [ :on "Module::Runtime"^^:CpanId ];
-	:test-requirement    [ :on "Test::More 0.61"^^:CpanId ];
-	:test-requirement    [ :on "Test::Warn"^^:CpanId ];
-	:test-requirement    [ :on "Test::Exception"^^:CpanId ].
+	:runtime-requirement [ :on "Exporter::Tiny"^^:CpanId ];
+	:test-requirement    [ :on "Test::More 0.61"^^:CpanId ].
 
 

@@ -1,4 +1,4 @@
-use 5.008;
+use 5.006001;
 use strict;
 use warnings;
 
@@ -51,6 +51,7 @@ use Module::Runtime qw//;
 			@{ $opts{collect} };
 		
 		no strict 'refs';
+		no warnings 'closure';
 		my $caller = caller;	
 		unshift @{"$caller\::ISA"}, 'Syntax::Collector::Collection';
 		eval "package $caller; sub _syntax_collector_features { \@features }; 1"

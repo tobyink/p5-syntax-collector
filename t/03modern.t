@@ -3,7 +3,7 @@ BEGIN {
 	
 	use Syntax::Collector q/
 		use strict 0;
-		use warnings 0;
+		use warnings 0 FATAL => 'all';
 		use Scalar::Util 0 qw(blessed);
 	/;
 	
@@ -21,35 +21,40 @@ BEGIN {
 	
 	use strict;
 	no warnings;
-	use Test::More;
-	use Test::Exception;
-	use Test::Warn;
+	use Test::More tests => 6;
+	use Test::Fatal;
 	
 	use Local::Test::Syntax;
 	
 	sub go
 	{
-		plan tests => 5;
-		
-		is
+		is(
 			uc('Hello World'),
 			'hello world',
-			'sub IMPORT';
+			'sub IMPORT',
+		);
 		
-		warning_like { print undef }
-			qr{^Use of uninitialized value in print},
-			'use warnings';
+		like(
+			exception { print(my $x = undef) },
+			qr{uninitialized},
+			'use warnings',
+		);
 		
-		lives_ok { maybe(1,2) }
-			'sub maybe';
-
-		lives_and { ok blessed( bless +{} ) }
-			'sub blessed';
-
-		is_deeply
+		ok(
+			!exception { maybe(1,2) },
+			'sub maybe',
+		);
+		
+		ok(
+			!exception { ok blessed( bless +{} ) },
+			'sub blessed',
+		);
+		
+		is_deeply(
 			[ sort Local::Test::Syntax->modules ],
 			[ sort qw/strict warnings Scalar::Util/ ],
-			'sub modules';
+			'sub modules',
+		);
 	}
 }
 
