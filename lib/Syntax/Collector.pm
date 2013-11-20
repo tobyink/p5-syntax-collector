@@ -4,7 +4,6 @@ use 5.008;
 use strict;
 use Carp;
 use Module::Runtime qw/require_module/;
-use Sub::Name qw/subname/;
 
 BEGIN {
 	$Syntax::Collector::AUTHORITY = 'cpan:TOBYINK';
@@ -117,11 +116,10 @@ sub import
 	
 	{
 		my $caller = caller;
-		foreach my $sub (sort keys %sub)
+		for my $name (sort keys %sub)
 		{
-			my $subname = sprintf("%s::%s", $caller, $sub);
-			no strict 'refs';
-			*{$subname} = subname $caller => $sub{$sub};
+			my $code = $sub{$name};
+			eval qq[package $caller; sub $name { goto \$code }];
 		}
 	}
 }
