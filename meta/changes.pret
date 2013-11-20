@@ -38,3 +38,9 @@
 		item   [ label "Drop Sub::Name dependency."@en; a dcs:Packaging ];
 	].
 
+`Syntax-Collector 0.006 cpan:TOBYINK`
+	issued    2013-11-20;
+	changeset [
+		item   [ label "Improve the bundled examples."@en; a dcs:Documentation ];
+	].
+

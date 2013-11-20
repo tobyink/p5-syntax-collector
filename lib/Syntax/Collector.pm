@@ -10,7 +10,7 @@ use Module::Runtime qw//;
 	
 	BEGIN {
 		$Syntax::Collector::AUTHORITY = 'cpan:TOBYINK';
-		$Syntax::Collector::VERSION   = '0.005';
+		$Syntax::Collector::VERSION   = '0.006';
 	}
 	
 	sub import
@@ -65,7 +65,7 @@ use Module::Runtime qw//;
 	
 	BEGIN {
 		$Syntax::Collector::Collection::AUTHORITY = 'cpan:TOBYINK';
-		$Syntax::Collector::Collection::VERSION   = '0.005';
+		$Syntax::Collector::Collection::VERSION   = '0.006';
 	}
 	
 	our @ISA = 'Exporter::Tiny';
