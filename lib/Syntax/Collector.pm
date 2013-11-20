@@ -1,124 +1,110 @@
-package Syntax::Collector;
-
 use 5.008;
 use strict;
-use Carp;
-use Module::Runtime qw/require_module/;
+use warnings;
 
-BEGIN {
-	$Syntax::Collector::AUTHORITY = 'cpan:TOBYINK';
-	$Syntax::Collector::VERSION   = '0.004';
+{
+	package Syntax::Collector;
+	
+	BEGIN {
+		$Syntax::Collector::AUTHORITY = 'cpan:TOBYINK';
+		$Syntax::Collector::VERSION   = '0.004';
+	}
+	
+	sub _croak
+	{
+		require Carp;
+		goto \&Carp::croak;
+	}
+	
+	sub import
+	{
+		my $class = shift;
+		
+		my %opts;
+		my $opt = 'collect';
+		while (my $arg = shift @_)
+		{
+			($arg =~ /^-(.+)$/)
+				? ($opt = $1)
+				: push(@{$opts{$opt}}, $arg)
+		}
+		
+		_croak("Need to provide a list of use lines to collect") unless $opts{collect};
+		$opts{collect} = [$opts{collect}] unless ref $opts{collect};
+		
+		my @features =
+			map {
+				m{^
+					(use|no) \s+      # "use" or "no"
+					(\S+) \s+         # module name
+					([\d\._v]+)       # module version
+					(?:               # everything else
+						\s* (.+)
+					)?                #    ... perhaps
+					[;] \s*           # semicolon
+				$}x
+					? [$1, $2, $3, [ defined($4) ? eval "($4)" : ()] ]
+					: _croak("Line q{$_} doesn't conform to 'use MODULE VERSION [ARGS];'")
+			}
+			grep { ! m/^#/ }                # not a comment
+			grep { m/[A-Z0-9]/i }           # at least one alphanum
+			map  { s/(^\s+)|(\s+$)//; $_ }  # trim
+			map  { split /(\r?\n|\r)/ }     # split lines
+			@{ $opts{collect} };
+		
+		no strict 'refs';
+		my $caller = caller;	
+		unshift @{"$caller\::ISA"}, 'Syntax::Collector::Collection';
+		eval "package $caller; sub _features { \@features }; 1" or croak("$@");
+	}
 }
 
-sub import
 {
-	my $class = shift;
+	package Syntax::Collector::Collection;
 	
-	my %opts;
-	my $opt = 'collect';
-	while (my $arg = shift @_)
-	{
-		if ($arg =~ /^-(.+)$/)
-		{
-			$opt = $1;
-		}
-		else
-		{
-			$opts{$opt} = $arg;
-		}
+	BEGIN {
+		$Syntax::Collector::Collection::AUTHORITY = 'cpan:TOBYINK';
+		$Syntax::Collector::Collection::VERSION   = '0.004';
 	}
 	
-	croak "Need to provide a list of use lines to collect"
-		unless defined $opts{collect} and $opts{collect};
+	use Module::Runtime qw/require_module/;
 	
-	$opts{collect} = [$opts{collect}] unless ref $opts{collect};
-	
-	my @collect =
-		grep { ! m/^#/ }                # not a comment
-		grep { m/[A-Z0-9]/i }           # at least one alphanum
-		map  { s/(^\s+)|(\s+$)//; $_ }  # trim
-		map  { split /(\r?\n|\r)/ }     # split lines
-		@{ $opts{collect} };
-	
-	my @features;
-	
-	foreach my $use_line (@collect)
+	sub import
 	{
-		if ($use_line =~ m{^
-			(use|no) \s+      # "use" or "no"
-			(\S+) \s+         # module name
-			([\d\._v]+)       # module version
-			(?:               # everything else
-				\s* (.+)
-			)?                #    ... perhaps
-			[;] \s*           # semicolon
-			$}x)
-		{
-			my ($use, $module, $version, $everything) = ($1, $2, $3, $4);
-			$everything = '' unless defined $everything;
-			
-			if ($module =~ /^Syntax::Feature::/)
-			{
-				push @features, [FEATURE => $module, $version, [eval "($everything)"]]
-					unless $use eq 'no';
-			}
-			else
-			{
-				push @features, [MODULE => $module, $version, [eval "($everything)"], $use];
-			}
-		}
-		else
-		{
-			croak "Line q{$use_line} doesn't conform to 'use MODULE VERSION [ARGS];'";
-		}
-	}
-	
-	my %sub;
-	$sub{import} = sub
-	{
-		my ($self, %args) = @_;
+		my ($class, %args) = @_;
 		my $caller = caller;
 		
-		foreach my $f (@features)
+		my ($coderef_use, $coderef_no) = eval qq[
+			package $caller; 
+			(
+				sub { shift->import(\@_) },
+				sub { shift->unimport(\@_) },
+			)
+		];
+		
+		foreach my $f ($class->_features)
 		{
-			my ($type, $module, $version, $everything, $use) = @$f;
+			my ($use, $module, $version, $everything) = @$f;
+			require_module($module);
+			$module->VERSION($version) if $version;
 			
-			if ($type eq 'FEATURE')
-			{
-				require_module($module);
-				$module->VERSION($version) if $version;
-				$module->install(into => $caller, @$everything);
-			}
-			else
-			{
-				require_module($module);
-				$module->VERSION($version) if $version;
-				my $coderef = $use eq 'no'
-					? eval "package $caller; my \$sub = sub { shift->unimport(\@_) };"
-					: eval "package $caller; my \$sub = sub { shift->import(\@_) };";
-				$coderef->($module, @$everything);
-			}
+			($module =~ /^Syntax::Feature::/)
+				? $module->install(into => $caller, @$everything)
+				: ($use eq 'no' ? $coderef_no : $coderef_use)->($module, @$everything)
 		}
 		
-		if (my $afterlife = $self->can('IMPORT'))
+		if (my $afterlife = $class->can('IMPORT'))
 		{
 			goto $afterlife;
 		}
-	};
+	}
 	
-	$sub{modules} = sub
+	sub modules
 	{
-		my %modules =
-			map { $_->[1] => $_->[2] }
-			@features;
+		my $class = shift;
+		
+		my %modules = map { $_->[1] => $_->[2] } $class->_features;
 		return (wantarray ? keys(%modules) : \%modules);
-	};
-	
-	my $caller = caller;
-	for my $name (sort keys %sub)
-	{
-		my $code = $sub{$name};
-		eval qq[package $caller; sub $name { goto \$code }];
 	}
 }
 
@@ -144,7 +130,7 @@ In lib/Example/ProjectX/Syntax.pm
   use 5.010;
   our $VERSION = 1;
   
-  use Syntax::Collector -collect => q/
+  use Syntax::Collector q/
     use strict 0;
     use warnings 0;
     use feature 0 ':5.10';
@@ -187,7 +173,7 @@ Syntax::Collector to the rescue!
 
   package Example::ProjectX::Syntax;
   use 5.010;
-  use Syntax::Collector -collect => q/
+  use Syntax::Collector q/
   use strict 0;
   use warnings 0;
   use feature 0 ':5.10';
@@ -243,7 +229,7 @@ Sub::Exporter has an awesome feature set, so it is better than Exporter.pm.
   package Example::ProjectX::Syntax;
   our $VERSION = 1;
   
-  use Syntax::Collector -collect => q/
+  use Syntax::Collector q/
   use strict 0;
   use warnings 0;
   use feature 0 ':5.10';
@@ -272,7 +258,7 @@ Exporter.pm comes bundled with Perl, so it is better than Sub::Exporter.
   package Example::ProjectX::Syntax;
   our $VERSION = 1;
   
-  use Syntax::Collector -collect => q/
+  use Syntax::Collector q/
   use strict 0;
   use warnings 0;
   use feature 0 ':5.10';
@@ -293,11 +279,6 @@ Exporter.pm comes bundled with Perl, so it is better than Sub::Exporter.
   sub false () { !!0 }
   
   1;
-
-=head1 CAVEATS
-
-You should not rely on the "use" lines being processed in any
-particular order.
 
 =head1 BUGS
 
