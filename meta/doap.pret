@@ -1,24 +1,24 @@
 # This file contains general metadata about the project.
 
-@prefix :        <http://usefulinc.com/ns/doap#> .
-@prefix dc:      <http://purl.org/dc/terms/> .
-@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
-@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+`Syntax-Collector`
+	a                   doap:Project;
+	doap:programming-language "Perl";
+	doap:name           "Syntax-Collector";
+	doap:shortdesc      "collect a bundle of modules into one";
+	doap:homepage       <https://metacpan.org/release/Syntax-Collector>;
+	doap:download-page  <https://metacpan.org/release/Syntax-Collector>;
+	doap:repository     [ a doap:GitRepository ; doap:browse <https://github.com/tobyink/p5-syntax-collector> ];
+	doap:bug-database   <http://rt.cpan.org/Dist/Display.html?Queue=Syntax-Collector>;
+	doap:created        2012-02-15;
+	doap:license        <http://dev.perl.org/licenses/>;
+	doap:developer      cpan:TOBYINK;
+	doap:maintainer     cpan:TOBYINK.
 
-<http://purl.org/NET/cpan-uri/dist/Syntax-Collector/project>
-	a               :Project ;
-	:programming-language "Perl" ;
-	:name           "Syntax-Collector" ;
-	:shortdesc      "collect a bundle of modules into one" ;
-	:homepage       <https://metacpan.org/release/Syntax-Collector> ;
-	:download-page  <https://metacpan.org/release/Syntax-Collector> ;
-	:repository     [ a :GitRepository ; :browse <https://github.com/tobyink/p5-syntax-collector> ];
-	:bug-database   <http://rt.cpan.org/Dist/Display.html?Queue=Syntax-Collector> ;
-	:created        "2012-02-15"^^xsd:date ;
-	:license        <http://dev.perl.org/licenses/> ;
-	:developer      [ a foaf:Person ; foaf:name "Toby Inkster" ; foaf:mbox <mailto:tobyink@cpan.org> ] .
+cpan:TOBYINK
+	a                   foaf:Person;
+	foaf:name           "Toby Inkster";
+	foaf:mbox           <mailto:tobyink@cpan.org>.
 
 <http://dev.perl.org/licenses/>
-	dc:title        "the same terms as the perl 5 programming language system itself" .
+	dc:title            "the same terms as the perl 5 programming language system itself".
 
