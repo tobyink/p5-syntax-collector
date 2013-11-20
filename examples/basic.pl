@@ -1,4 +1,4 @@
-BEGIN {	
+BEGIN {
 	package Syntax::Collector::Example;
 	# hack for defining module inline
 	$INC{'Syntax/Collector/Example.pm'} = __FILE__;

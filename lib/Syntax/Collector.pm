@@ -33,9 +33,9 @@ sub import
 	croak "Need to provide a list of use lines to collect"
 		unless defined $opts{collect} and $opts{collect};
 	
-	$opts{collect}   = [$opts{collect}] unless ref $opts{collect};
+	$opts{collect} = [$opts{collect}] unless ref $opts{collect};
 	
-	my @collect = 
+	my @collect =
 		grep { ! m/^#/ }                # not a comment
 		grep { m/[A-Z0-9]/i }           # at least one alphanum
 		map  { s/(^\s+)|(\s+$)//; $_ }  # trim
@@ -50,8 +50,8 @@ sub import
 			(use|no) \s+      # "use" or "no"
 			(\S+) \s+         # module name
 			([\d\._v]+)       # module version
-			(?:
-			  \s* (.+)        # everything else
+			(?:               # everything else
+				\s* (.+)
 			)?                #    ... perhaps
 			[;] \s*           # semicolon
 			$}x)
@@ -129,6 +129,12 @@ sub import
 
 __FILE__
 __END__
+
+=pod
+
+=encoding utf-8
+
+=for stopwords DWIMmery pragmata
 
 =head1 NAME
 
